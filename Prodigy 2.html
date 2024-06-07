@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prodigy WD Stopwatch</title>
+    <!-- Link to Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to right, #8A2387, #000000);
+            color: white;
+        }
+
+        .stopwatch {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            width: 80%;
+            max-width: 600px;
+        }
+
+        .stopwatch h1 {
+            margin: 0;
+            font-size: 5em;
+            letter-spacing: 2px;
+            font-family: 'Roboto';
+        }
+
+        .stopwatch .controls {
+            margin: 30px 0;
+        }
+
+        .stopwatch button {
+            background: none;
+            border: 2px solid white;
+            padding: 15px 30px;
+            margin: 10px;
+            color: white;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: background 0.3s, color 0.3s;
+            border-radius: 10px;
+        }
+
+        .stopwatch button:hover {
+            background: white;
+            color: #8A2387;
+        }
+
+        .stopwatch .laps {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        .stopwatch .laps ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .stopwatch .laps li {
+            background: rgba(255, 255, 255, 0.2);
+            margin: 5px 0;
+            padding: 10px 20px;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="stopwatch">
+        <h1 id="display">00:00:00</h1>
+        <div class="controls">
+            <button id="startStopButton" onclick="startStop()">Start</button>
+            <button onclick="lap()">Lap</button>
+            <button onclick="reset()">Reset</button>
+        </div>
+        <div class="laps">
+            <ul id="lapsList"></ul>
+        </div>
+    </div>
+
+    <script>
+        let timer;
+        let isRunning = false;
+        let startTime;
+        let elapsedTime = 0;
+        let laps = [];
+
+        function updateDisplay() {
+            const display = document.getElementById('display');
+            const time = new Date(elapsedTime);
+            const minutes = String(time.getUTCMinutes()).padStart(2, '0');
+            const seconds = String(time.getUTCSeconds()).padStart(2, '0');
+            const milliseconds = String(Math.floor(time.getUTCMilliseconds() / 10)).padStart(2, '0');
+            display.textContent = `${minutes}:${seconds}:${milliseconds}`;
+        }
+
+        function startStop() {
+            const startStopButton = document.getElementById('startStopButton');
+            if (isRunning) {
+                clearInterval(timer);
+                startStopButton.textContent = 'Start';
+            } else {
+                startTime = Date.now() - elapsedTime;
+                timer = setInterval(() => {
+                    elapsedTime = Date.now() - startTime;
+                    updateDisplay();
+                }, 10);
+                startStopButton.textContent = 'Stop';
+            }
+            isRunning = !isRunning;
+        }
+
+        function reset() {
+            clearInterval(timer);
+            isRunning = false;
+            elapsedTime = 0;
+            laps = [];
+            updateDisplay();
+            document.getElementById('lapsList').innerHTML = '';
+            document.getElementById('startStopButton').textContent = 'Start';
+        }
+
+        function lap() {
+            if (isRunning) {
+                laps.push(elapsedTime);
+                const lapTime = new Date(elapsedTime);
+                const minutes = String(lapTime.getUTCMinutes()).padStart(2, '0');
+                const seconds = String(lapTime.getUTCSeconds()).padStart(2, '0');
+                const milliseconds = String(Math.floor(lapTime.getUTCMilliseconds() / 10)).padStart(2, '0');
+                const lapItem = document.createElement('li');
+                lapItem.textContent = `Lap ${laps.length}: ${minutes}:${seconds}:${milliseconds}`;
+                document.getElementById('lapsList').appendChild(lapItem);
+            }
+        }
+    </script>
+</body>
+</html>
